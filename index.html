@@ -30,20 +30,20 @@
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#08080A;
-    --bg-soft:#0D0D10;
-    --panel:#131317;
+    --bg:#060302;
+    --bg-soft:#0D0605;
+    --panel:#170A08;
     --glass: rgba(255,255,255,0.045);
     --glass-hover: rgba(255,255,255,0.075);
     --glass-border: rgba(255,255,255,0.10);
     --glass-border-hover: rgba(255,255,255,0.18);
-    --text:#F3F3F5;
-    --text-dim:#9C9BA3;
-    --text-faint:#68676E;
-    --amber:#FFB020;
-    --amber-soft:#FFCB6B;
-    --teal:#2DD4BF;
-    --teal-soft:#7EEBDD;
+    --text:#F5F1EF;
+    --text-dim:#AD9F9C;
+    --text-faint:#786663;
+    --amber:#FF6A2C;
+    --amber-soft:#FF9A5C;
+    --teal:#FF3B30;
+    --teal-soft:#FF7F6E;
     --line: var(--glass-border);
     --radius: 22px;
     --radius-sm: 14px;
@@ -70,6 +70,20 @@
     background-size: 34px 34px;
     -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 20%, transparent 75%);
     mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 20%, transparent 75%);
+  }
+  body::after{
+    content:'';
+    position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background:
+      radial-gradient(1100px 620px at 18% -8%, rgba(255,59,48,0.20), transparent 60%),
+      radial-gradient(900px 520px at 86% 6%, rgba(255,106,44,0.13), transparent 55%),
+      linear-gradient(200deg, transparent 40%, rgba(255,59,48,0.05) 55%, transparent 70%);
+  }
+  #top-ticks{
+    position:fixed; top:0; left:0; right:0; height:7px; z-index:299;
+    background-image: repeating-linear-gradient(90deg, rgba(255,255,255,0.16) 0 1px, transparent 1px 7px);
+    -webkit-mask-image: linear-gradient(90deg, black 0%, black 100%);
+    pointer-events:none;
   }
   ::selection{background:var(--teal);color:var(--text);}
 
@@ -103,7 +117,12 @@
   @media (prefers-reduced-motion: reduce){
     .reveal, .reveal-stagger > *{ opacity:1 !important; transform:none !important; transition:none !important; }
     html{scroll-behavior:auto;}
-    .bar, .bc-mini-chart .b, .particle{ animation:none !important; }
+    .bar, .particle, .pos-chip, .wf-pulse, .dot-live{ animation:none !important; }
+    .bar, .hb, .si-fill, .chart-draw, .chart-dot, .device-tile, .reg-tile{ transition:none !important; }
+    .bar, .hb{ height:var(--h) !important; }
+    .si-fill{ width:var(--w) !important; }
+    .chart-draw{ stroke-dashoffset:0 !important; }
+    .chart-dot, .device-tile, .reg-tile{ opacity:1 !important; transform:none !important; }
   }
 
   a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible{
@@ -120,8 +139,9 @@
 
   /* ---------- SCROLL PROGRESS ---------- */
   #scroll-progress{
-    position:fixed; top:0; left:0; height:2px; width:0%; z-index:300;
-    background:linear-gradient(90deg, var(--amber-soft), var(--teal-soft));
+    position:fixed; top:0; left:0; height:3px; width:0%; z-index:300;
+    background:linear-gradient(90deg, var(--teal), var(--amber-soft));
+    box-shadow:0 0 12px rgba(255,59,48,0.6);
     transition:width .1s linear;
   }
 
@@ -129,7 +149,7 @@
   header{ position:fixed; top:18px; left:0; right:0; z-index:100; display:flex; justify-content:center; padding:0 16px; }
   nav.pill{
     display:flex; align-items:center; gap:8px;
-    background: rgba(19,19,23,0.7);
+    background: rgba(14,7,6,0.72);
     border:1px solid var(--glass-border);
     backdrop-filter: blur(18px) saturate(160%);
     -webkit-backdrop-filter: blur(18px) saturate(160%);
@@ -149,9 +169,15 @@
   .nav-links{ display:flex; gap:4px; align-items:center; }
   .nav-links a{
     font-size:13.5px; font-weight:500; color:var(--text-dim); padding:8px 13px; border-radius:100px;
-    transition: color .25s ease, background .25s ease;
+    transition: color .25s ease, background .25s ease; position:relative;
   }
   .nav-links a:hover{ color:var(--text); background:var(--glass-hover); }
+  .nav-links a::after{
+    content:''; position:absolute; left:13px; right:13px; bottom:3px; height:1.5px;
+    background:linear-gradient(90deg, var(--teal-soft), var(--amber-soft));
+    transform:scaleX(0); transform-origin:left; transition:transform .3s cubic-bezier(.16,.8,.24,1);
+  }
+  .nav-links a:hover::after{ transform:scaleX(1); }
   .nav-cta{ display:flex; align-items:center; gap:8px; }
 
   .btn{
@@ -160,18 +186,19 @@
     transition: transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .25s ease, background .25s ease, border-color .25s ease;
     white-space:nowrap;
   }
-  .btn-primary{ background:var(--text); color:#0A0A0C; }
-  .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 10px 26px rgba(255,255,255,0.18); }
-  .btn-amber{ background: linear-gradient(135deg, var(--amber-soft), var(--amber)); color:#241600; }
-  .btn-amber:hover{ transform:translateY(-2px); box-shadow:0 12px 28px rgba(255,176,32,0.35); }
+  .btn-primary{ background:linear-gradient(135deg, var(--teal-soft), var(--teal)); color:#fff; }
+  .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 12px 30px rgba(255,59,48,0.4); }
+  .btn-amber{ background: linear-gradient(135deg, var(--amber-soft), var(--amber)); color:#2A0900; }
+  .btn-amber:hover{ transform:translateY(-2px); box-shadow:0 12px 28px rgba(255,106,44,0.35); }
   .btn-ghost{ color:var(--text-dim); font-size:13.5px; font-weight:600; padding:10px 14px; border-radius:100px; }
   .btn-ghost:hover{ color:var(--text); }
   .btn-outline{ border:1.5px solid var(--glass-border); color:var(--text); }
   .btn-outline:hover{ border-color:var(--glass-border-hover); background:var(--glass-hover); transform:translateY(-2px); }
   .btn-sm{ padding:10px 16px; font-size:13px; }
+  .btn:active{ transform:scale(0.97); }
 
   /* ---------- HERO ---------- */
-  .hero{ position:relative; padding:190px 0 60px; overflow:hidden; text-align:center; }
+  .hero{ position:relative; padding:170px 0 60px; overflow:hidden; text-align:left; }
   .hero-blob{ position:absolute; border-radius:50%; filter:blur(90px); opacity:0.35; pointer-events:none; z-index:0; }
   .blob-1{ width:520px;height:520px; background:var(--teal); top:-220px; left:8%; animation: blobFloat1 14s ease-in-out infinite; }
   .blob-2{ width:460px;height:460px; background:var(--amber); top:-160px; right:6%; opacity:0.22; animation: blobFloat2 17s ease-in-out infinite; }
@@ -193,40 +220,178 @@
     100%{ transform:translateY(-460px) translateX(var(--dx)); opacity:0; }
   }
 
-  .hero-inner{ position:relative; z-index:2; max-width:760px; margin:0 auto; }
+  .hero-top{ position:relative; z-index:2; display:grid; grid-template-columns:1fr 0.92fr; gap:50px; align-items:center; margin-bottom:64px; }
+  .hero-copy{ max-width:560px; }
   .hero-badge{
     display:inline-flex; align-items:center; gap:8px; padding:6px 14px 6px 6px;
     border-radius:100px; margin-bottom:26px; font-size:12.5px; color:var(--text-dim);
   }
-  .hero-badge .pill-tag{ background:var(--teal); color:#04211D; font-family:var(--font-mono); font-weight:700; font-size:13px; padding:8px 16px; border-radius:100px; letter-spacing:.04em; display:inline-block; animation: pillPulse 2.2s ease-in-out infinite; }
+  .hero-badge .pill-tag{ background:var(--teal); color:#2A0500; font-family:var(--font-mono); font-weight:700; font-size:13px; padding:8px 16px; border-radius:100px; letter-spacing:.04em; display:inline-block; animation: pillPulse 2.2s ease-in-out infinite; }
   @keyframes pillPulse{
-    0%, 100%{ transform:scale(1); box-shadow:0 0 0 0 rgba(45,212,191,0.5); }
-    50%{ transform:scale(1.12); box-shadow:0 0 0 10px rgba(45,212,191,0); }
+    0%, 100%{ transform:scale(1); box-shadow:0 0 0 0 rgba(255,59,48,0.5); }
+    50%{ transform:scale(1.12); box-shadow:0 0 0 10px rgba(255,59,48,0); }
   }
-  .hero h1{ font-size:clamp(38px, 6vw, 68px); line-height:1.04; margin-bottom:22px; }
+  .hero h1{ font-size:clamp(34px, 4.4vw, 58px); line-height:1.06; margin-bottom:22px; }
   .hero h1 .grad{
     background:linear-gradient(135deg, var(--teal-soft), var(--amber-soft));
     -webkit-background-clip:text; background-clip:text; color:transparent;
   }
-  .hero p.lead{ font-size:17.5px; color:var(--text-dim); max-width:520px; margin:0 auto 34px; }
-  .hero-actions{ display:flex; gap:14px; justify-content:center; margin-bottom:56px; flex-wrap:wrap; }
+  .hero p.lead{ font-size:17px; color:var(--text-dim); max-width:480px; margin:0 0 34px; }
+  .hero-actions{ display:flex; gap:14px; justify-content:flex-start; margin-bottom:0; flex-wrap:wrap; }
 
-  .hero-stats{ display:flex; justify-content:center; gap:0; margin-bottom:78px; flex-wrap:wrap; position:relative; z-index:2; }
-  .hero-stat{ padding:0 34px; text-align:center; border-right:1px solid var(--glass-border); }
-  .hero-stat:last-child{ border-right:none; }
-  .hero-stat .n{ font-family:var(--font-display); font-size:26px; font-weight:800; color:var(--text); }
-  .hero-stat .n .accent{ color:var(--teal-soft); }
-  .hero-stat .l{ font-family:var(--font-mono); font-size:11px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.06em; margin-top:4px; }
+  /* device illustration */
+  .hero-illustration{ position:relative; z-index:2; display:flex; align-items:center; justify-content:center; min-height:380px; }
+  .device-arc{ position:absolute; width:150%; height:150%; top:-25%; left:-15%; opacity:.7; pointer-events:none; z-index:0; }
+  .device-monitor{ width:84%; max-width:420px; background:#0B0B0E; border:1px solid var(--glass-border); border-radius:18px; padding:12px; box-shadow:0 40px 90px -30px rgba(255,59,48,0.28), 0 20px 50px -20px rgba(0,0,0,0.6); position:relative; z-index:2; }
+  .device-screen{ background:var(--panel); border-radius:10px; padding:16px; }
+  .device-screen .ds-tabs{ display:flex; gap:14px; margin-bottom:14px; font-family:var(--font-mono); font-size:9.5px; color:var(--text-faint); }
+  .device-screen .ds-tabs span.active{ color:var(--teal-soft); }
+  .device-tiles{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:14px; }
+  .device-tile{ background:rgba(255,255,255,0.04); border:1px solid var(--glass-border); border-radius:8px; padding:8px; opacity:0; transform:scale(.82); transition:opacity .45s ease, transform .45s cubic-bezier(.34,1.56,.64,1); }
+  .hero-illustration.in-view .device-tile{ opacity:1; transform:scale(1); }
+  .hero-illustration.in-view .device-tile:nth-child(1){ transition-delay:.15s; }
+  .hero-illustration.in-view .device-tile:nth-child(2){ transition-delay:.22s; }
+  .hero-illustration.in-view .device-tile:nth-child(3){ transition-delay:.29s; }
+  .hero-illustration.in-view .device-tile:nth-child(4){ transition-delay:.36s; }
+  .device-tile .dt-l{ font-size:7px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.04em; }
+  .device-tile .dt-v{ font-family:var(--font-mono); font-size:10.5px; color:var(--text); font-weight:700; margin-top:3px; }
+  .device-chart{ width:100%; height:56px; margin-bottom:14px; display:block; }
+  .device-list .dl-row{ display:flex; justify-content:space-between; font-size:9.5px; color:var(--text-dim); padding:5px 0; border-top:1px solid var(--glass-border); }
+  .device-stand{ width:64px; height:14px; background:#0B0B0E; margin:0 auto; border-radius:0 0 5px 5px; }
+  .device-stand-base{ width:120px; height:7px; background:#0B0B0E; margin:0 auto; border-radius:4px; }
 
-  /* bento showcase */
-  .bento{ position:relative; z-index:2; display:grid; grid-template-columns: 1.3fr 1fr; grid-template-rows: auto auto; gap:18px; text-align:left; }
+  .device-printer{ position:absolute; left:-2%; bottom:8%; width:92px; z-index:1; }
+  .device-printer .dp-body{ background:#111114; border:1px solid var(--glass-border); border-radius:8px 8px 4px 4px; height:42px; position:relative; box-shadow:0 20px 40px -18px rgba(0,0,0,0.7); }
+  .device-printer .dp-slot{ position:absolute; top:-4px; left:10%; width:80%; height:6px; background:#050506; border-radius:3px; }
+  .device-printer .dp-slot::before{ content:''; position:absolute; top:1px; left:50%; transform:translateX(-50%); width:26px; height:2px; border-radius:2px; background:var(--teal-soft); box-shadow:0 0 6px var(--teal-soft); }
+  .device-printer .dp-paper{ width:66%; margin:0 auto; background:#eae7e2; height:30px; border-radius:0 0 4px 4px; position:relative; top:-4px;
+    clip-path:polygon(0 0,100% 0,100% 85%,90% 100%,80% 85%,70% 100%,60% 85%,50% 100%,40% 85%,30% 100%,20% 85%,10% 100%,0 85%); }
+
+  .device-scanner{ position:absolute; right:0%; bottom:10%; width:18px; height:92px; border-radius:12px; background:linear-gradient(180deg,#1b1b20,#0b0b0e); border:1px solid var(--glass-border); z-index:1; box-shadow:0 20px 40px -18px rgba(0,0,0,0.7); }
+  .device-scanner::after{ content:''; position:absolute; top:-5px; left:50%; transform:translateX(-50%); width:11px;height:11px;border-radius:50%; background:var(--teal); box-shadow:0 0 16px 4px rgba(255,59,48,0.7); animation:pulse 1.8s ease-in-out infinite; }
+
+  @media (max-width:900px){
+    .hero-top{ grid-template-columns:1fr; }
+    .hero-illustration{ order:-1; min-height:280px; margin-bottom:12px; }
+    .hero-copy{ max-width:none; text-align:center; margin:0 auto; }
+    .hero p.lead{ margin-left:auto; margin-right:auto; }
+    .hero-actions{ justify-content:center; }
+  }
+
+  /* stat cards */
+  .hero-stats-row{ position:relative; z-index:2; display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-bottom:16px; }
+  .hstat-card{ padding:22px 20px; transition: transform .3s ease, border-color .3s ease; }
+  .hstat-card:hover{ transform:translateY(-4px); border-color:var(--glass-border-hover); }
+  .hstat-icon{ width:40px;height:40px;border-radius:50%; display:flex; align-items:center; justify-content:center; margin-bottom:14px; }
+  .hstat-icon svg{ width:18px;height:18px; }
+  .hstat-icon.ic-red{ background:rgba(255,59,48,.15); border:1px solid rgba(255,59,48,.35); }
+  .hstat-icon.ic-red svg{ stroke:var(--teal-soft); }
+  .hstat-icon.ic-orange{ background:rgba(255,106,44,.15); border:1px solid rgba(255,106,44,.35); }
+  .hstat-icon.ic-orange svg{ stroke:var(--amber-soft); }
+  .hstat-icon.ic-green{ background:rgba(52,211,153,.15); border:1px solid rgba(52,211,153,.35); }
+  .hstat-icon.ic-green svg{ stroke:#34D399; }
+  .hstat-icon.ic-blue{ background:rgba(56,189,248,.15); border:1px solid rgba(56,189,248,.35); }
+  .hstat-icon.ic-blue svg{ stroke:#38BDF8; }
+  .hstat-icon.ic-purple{ background:rgba(167,139,250,.15); border:1px solid rgba(167,139,250,.35); }
+  .hstat-icon.ic-purple svg{ stroke:#A78BFA; }
+  .hstat-card .hn{ font-family:var(--font-display); font-size:23px; font-weight:800; }
+  .hstat-num-red{ color:var(--teal-soft); } .hstat-num-orange{ color:var(--amber-soft); }
+  .hstat-num-green{ color:#34D399; } .hstat-num-blue{ color:#38BDF8; } .hstat-num-purple{ color:#A78BFA; }
+  .hstat-card .hl{ font-size:13.5px; font-weight:700; color:var(--text); margin-top:3px; }
+  .hstat-card .hd{ font-size:12px; color:var(--text-faint); margin-top:7px; line-height:1.45; }
+  @media (max-width:1100px){ .hero-stats-row{ grid-template-columns:repeat(3,1fr); } }
+  @media (max-width:640px){ .hero-stats-row{ grid-template-columns:1fr 1fr; } }
+
+  /* trust strip */
+  .hero-trust-strip{ position:relative; z-index:2; display:flex; justify-content:space-between; flex-wrap:wrap; gap:18px; padding:22px 28px; margin-bottom:70px; }
+  .htrust-item{ display:flex; align-items:center; gap:12px; flex:1; min-width:210px; }
+  .htrust-item .hti-icon{ width:34px;height:34px;border-radius:10px; background:rgba(255,59,48,.12); border:1px solid rgba(255,59,48,.3); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .htrust-item .hti-icon svg{ width:15px;height:15px; stroke:var(--teal-soft); }
+  .htrust-item .hti-t{ font-size:13px; font-weight:700; color:var(--text); }
+  .htrust-item .hti-d{ font-size:11.5px; color:var(--text-faint); }
+  @media (max-width:700px){ .hero-trust-strip{ flex-direction:column; } }
+
+  /* bento showcase v2 — live operations */
+  .bento{ position:relative; z-index:2; display:grid; grid-template-columns:1fr 1fr; gap:18px; align-items:start; text-align:left; }
+  .bento-col{ display:flex; flex-direction:column; gap:18px; }
   .bento-card{ padding:26px; transition: border-color .3s ease, transform .35s ease, background .3s ease; position:relative; overflow:hidden; }
   .bento-card:hover{ border-color:var(--glass-border-hover); transform:translateY(-4px); background:var(--glass-hover); }
+  .bc-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:6px; }
   .bento-card .bc-label{ font-family:var(--font-mono); font-size:11px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.08em; margin-bottom:6px; }
   .bento-card .bc-title{ font-size:15px; font-weight:600; color:var(--text); }
-  .bento-receipt{ grid-row: span 2; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; padding:30px 26px; }
 
-  .receipt-holder{ position:relative; width:100%; max-width:270px; margin-top:6px; }
+  .bc-live-tag{ display:inline-flex; align-items:center; gap:6px; font-size:11.5px; color:#34D399; font-weight:600; flex-shrink:0; }
+  .dot-live{ width:6px;height:6px;border-radius:50%; background:#34D399; box-shadow:0 0 8px #34D399; animation: pulse2 1.8s ease-in-out infinite; }
+  .bc-check{ width:26px;height:26px;border-radius:50%; background:rgba(52,211,153,.15); border:1px solid rgba(52,211,153,.4); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .bc-check svg{ width:13px;height:13px; stroke:#34D399; }
+  @keyframes pulse2{ 0%,100%{ opacity:1; } 50%{ opacity:.35; } }
+
+  .bc-live-row{ display:flex; gap:18px; align-items:flex-end; margin-top:14px; }
+  .bc-live-row .receipt-holder{ flex-shrink:0; width:56%; margin-top:0; }
+  .reg-illustration{ position:relative; flex:1; display:flex; align-items:flex-end; justify-content:center; padding-bottom:2px; min-width:0; }
+  .reg-monitor{ width:100%; max-width:150px; background:#0B0B0E; border:1px solid var(--glass-border); border-radius:12px; padding:8px; box-shadow:0 20px 50px -20px rgba(255,59,48,.35); }
+  .reg-total{ background:#1a0a08; border:1px solid rgba(255,59,48,.3); border-radius:5px; padding:5px 8px; text-align:center; margin-bottom:6px; }
+  .reg-total .rt-l{ font-size:6.5px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.05em; }
+  .reg-total .rt-v{ font-family:var(--font-mono); font-size:12px; color:var(--teal-soft); font-weight:700; }
+  .reg-tiles{ display:grid; grid-template-columns:repeat(3,1fr); gap:5px; }
+  .reg-tile{ aspect-ratio:1; border-radius:5px; background:linear-gradient(135deg, rgba(255,59,48,.28), rgba(255,106,44,.16)); border:1px solid var(--glass-border); opacity:0; transform:scale(.7); transition:opacity .4s ease, transform .4s cubic-bezier(.34,1.56,.64,1); }
+  .bento.in-view .reg-tile{ opacity:1; transform:scale(1); }
+  .bento.in-view .reg-tile:nth-child(1){ transition-delay:.5s; }
+  .bento.in-view .reg-tile:nth-child(2){ transition-delay:.57s; }
+  .bento.in-view .reg-tile:nth-child(3){ transition-delay:.64s; }
+  .bento.in-view .reg-tile:nth-child(4){ transition-delay:.71s; }
+  .bento.in-view .reg-tile:nth-child(5){ transition-delay:.78s; }
+  .bento.in-view .reg-tile:nth-child(6){ transition-delay:.85s; }
+  .reg-stand{ width:32px;height:9px; background:#0B0B0E; margin:0 auto; }
+  .reg-base{ width:66px;height:15px; background:#0B0B0E; margin:0 auto; border-radius:0 0 6px 6px; }
+
+  .sync-pill{ display:inline-flex; align-items:center; gap:7px; background:rgba(52,211,153,.12); border:1px solid rgba(52,211,153,.35); color:#34D399; font-size:11.5px; font-weight:600; padding:5px 12px; border-radius:100px; margin-top:10px; }
+  .sync-wave{ width:100%; height:52px; margin-top:16px; display:block; }
+  .sync-stats{ display:flex; justify-content:space-between; margin-top:14px; gap:8px; }
+  .sync-stats .ss-item{ text-align:left; }
+  .sync-stats .ss-v{ font-family:var(--font-display); font-size:19px; font-weight:800; color:var(--text); }
+  .sync-stats .ss-v.accent{ color:var(--teal-soft); }
+  .sync-stats .ss-l{ font-size:10.5px; color:var(--text-faint); margin-top:2px; }
+
+  .perf-num{ font-family:var(--font-display); font-size:32px; font-weight:800; color:var(--text); margin-top:10px; }
+  .perf-num .pct{ color:var(--teal-soft); }
+  .perf-sub{ font-size:12px; color:var(--text-faint); margin-top:2px; }
+  .perf-chart{ width:100%; height:70px; margin-top:14px; display:block; overflow:visible; }
+
+  .summary-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:16px; }
+  .summary-tile .st-icon{ width:32px;height:32px;border-radius:9px; background:rgba(255,59,48,.14); border:1px solid rgba(255,59,48,.32); display:flex; align-items:center; justify-content:center; margin-bottom:10px; }
+  .summary-tile .st-icon svg{ width:14px;height:14px; stroke:var(--teal-soft); }
+  .summary-tile .st-label{ font-size:11.5px; color:var(--text-dim); }
+  .summary-tile .st-val{ font-family:var(--font-display); font-size:18px; font-weight:800; color:var(--text); margin-top:3px; }
+  .summary-tile .st-delta{ font-size:10.5px; color:#34D399; margin-top:4px; display:flex; align-items:center; gap:3px; }
+
+  .hour-card .bc-head{ align-items:center; }
+  .hour-select{ font-family:var(--font-mono); font-size:11px; color:var(--text-dim); border:1px solid var(--glass-border); border-radius:100px; padding:5px 12px; display:inline-flex; align-items:center; gap:6px; }
+  .hour-chart-wrap{ position:relative; margin-top:20px; }
+  .hour-tooltip{ position:absolute; top:-6px; background:#111114; border:1px solid var(--glass-border); border-radius:8px; padding:6px 10px; font-family:var(--font-mono); font-size:10px; color:var(--text-dim); text-align:center; box-shadow:0 10px 24px -10px rgba(0,0,0,0.7); transform:translate(-50%,-100%); white-space:nowrap; }
+  .hour-tooltip b{ display:block; color:var(--text); font-size:11.5px; }
+  .hour-chart{ display:flex; align-items:flex-end; gap:3px; height:110px; }
+  .hour-chart .hb{ flex:1; height:0%; background:linear-gradient(180deg, var(--amber-soft), var(--teal)); border-radius:2px 2px 0 0; opacity:.85; transform-origin:bottom; transition:opacity .2s ease, height 1s cubic-bezier(.16,.8,.24,1); }
+  .hour-chart .hb.peak{ opacity:1; box-shadow:0 0 14px rgba(255,59,48,.6); }
+  .bento.in-view .hour-chart .hb{ height:var(--h); }
+  .hour-axis{ display:flex; justify-content:space-between; margin-top:8px; font-family:var(--font-mono); font-size:9.5px; color:var(--text-faint); }
+
+  /* svg chart draw-in (shared by hero device-chart, sync-wave, perf-chart) */
+  .chart-draw{ stroke-dasharray:1000; stroke-dashoffset:1000; transition: stroke-dashoffset 1.7s cubic-bezier(.16,.8,.24,1); }
+  .hero-illustration.in-view .chart-draw{ stroke-dashoffset:0; }
+  .bento.in-view .chart-draw{ stroke-dashoffset:0; }
+  .chart-dot{ opacity:0; transform:scale(.3); transform-box:fill-box; transform-origin:center; transition:opacity .4s ease .6s, transform .4s cubic-bezier(.34,1.56,.64,1) .6s; }
+  .bento.in-view .chart-dot{ opacity:1; transform:scale(1); }
+
+  @media (max-width: 860px){
+    .bento{ grid-template-columns:1fr; }
+    .bc-live-row{ flex-direction:column; align-items:center; }
+    .bc-live-row .receipt-holder{ width:100%; max-width:270px; }
+    .summary-grid{ grid-template-columns:1fr 1fr; }
+  }
+  @media (max-width: 480px){
+    .summary-grid{ grid-template-columns:1fr; }
+  }
   .printer-slot{ height:14px; width:88%; margin:0 auto -2px; background: linear-gradient(180deg, #050506, #1b1b20); border-radius:8px 8px 0 0; position:relative; z-index:3; }
   .printer-slot::before{ content:''; position:absolute; top:5px; left:50%; transform:translateX(-50%); width:44px; height:3px; border-radius:2px; background:var(--teal-soft); box-shadow:0 0 8px var(--teal-soft); }
   .receipt{
@@ -251,26 +416,7 @@
   .r-barcode{ margin-top:16px; height:26px; background: repeating-linear-gradient(90deg,#8f8e94 0 2px, transparent 2px 5px, #8f8e94 5px 6px, transparent 6px 10px); opacity:0.5; }
   .r-thanks{ text-align:center; margin-top:12px; font-size:9.5px; color:var(--text-faint); }
 
-  .bc-mini-badge{ display:inline-flex; align-items:center; gap:6px; font-family:var(--font-mono); font-size:11px; color:var(--teal-soft); margin-top:12px; }
-  .bc-pulse{ width:6px;height:6px;border-radius:50%; background:var(--teal-soft); animation: pulse 1.8s ease-in-out infinite; }
-  @keyframes pulse{ 0%,100%{ box-shadow:0 0 0 0 rgba(45,212,191,0.5); } 50%{ box-shadow:0 0 0 6px rgba(45,212,191,0); } }
-  .bc-bignum{ font-family:var(--font-display); font-size:30px; font-weight:800; color:var(--text); margin-top:8px; }
-  .bc-bignum span{ color:var(--amber-soft); }
-
-  .bc-mini-chart{ display:flex; align-items:flex-end; gap:5px; height:56px; margin-top:14px; }
-  .bc-mini-chart .b{ flex:1; background:linear-gradient(180deg, var(--teal-soft), var(--teal)); border-radius:3px 3px 0 0; opacity:.85; transform-origin:bottom; animation: barPulse 2.6s ease-in-out infinite; }
-  .bc-mini-chart .b:nth-child(2){ animation-delay:.12s; }
-  .bc-mini-chart .b:nth-child(3){ animation-delay:.24s; }
-  .bc-mini-chart .b:nth-child(4){ animation-delay:.36s; }
-  .bc-mini-chart .b:nth-child(5){ animation-delay:.48s; }
-  .bc-mini-chart .b:nth-child(6){ animation-delay:.6s; }
-  .bc-mini-chart .b:nth-child(7){ animation-delay:.72s; }
-  .bc-mini-chart .b:nth-child(8){ animation-delay:.84s; }
-
-  @media (max-width: 860px){
-    .bento{ grid-template-columns:1fr; }
-    .bento-receipt{ grid-row:auto; }
-  }
+  @keyframes pulse{ 0%,100%{ box-shadow:0 0 0 0 rgba(255,59,48,0.5); } 50%{ box-shadow:0 0 0 6px rgba(255,59,48,0); } }
 
   /* ---------- TRUST BAR ---------- */
   .trust{ padding:36px 0; overflow:hidden; }
@@ -287,19 +433,80 @@
   .section-head h2{ font-size:clamp(28px,3.4vw,42px); line-height:1.1; margin-bottom:14px; }
   .section-head p{ color:var(--text-dim); font-size:16px; }
 
-  /* ---------- FEATURES bento ---------- */
-  .features-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
-  .feature-card{ padding:32px 28px; transition: background .3s ease, transform .3s ease, border-color .3s ease; }
-  .feature-card:hover{ background:var(--glass-hover); transform: translateY(-5px); border-color:var(--glass-border-hover); }
-  .feature-icon{
-    width:42px;height:42px; border-radius:12px; background:rgba(255,255,255,0.06); border:1px solid var(--glass-border);
-    display:flex; align-items:center; justify-content:center; margin-bottom:20px;
+  /* ---------- FEATURE SHOWCASES ---------- */
+  .showcase{ display:flex; flex-direction:column; gap:96px; }
+  .showcase-row{ display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:center; }
+  .showcase-row.reverse .showcase-copy{ order:2; }
+  .showcase-row.reverse .showcase-visual{ order:1; }
+  .showcase-num{ font-family:var(--font-mono); font-size:13px; font-weight:700; letter-spacing:.14em; color:var(--teal-soft); margin-bottom:16px; display:flex; align-items:center; gap:12px; }
+  .showcase-num::before{ content:''; width:30px; height:1px; background:var(--teal-soft); }
+  .showcase-copy h3{ font-size:clamp(22px,2.6vw,30px); line-height:1.15; margin-bottom:14px; }
+  .showcase-copy p{ color:var(--text-dim); font-size:15px; max-width:420px; }
+  .showcase-visual{ padding:26px; position:relative; min-height:250px; transition:border-color .3s ease, transform .3s ease; }
+  .showcase-visual:hover{ border-color:var(--glass-border-hover); transform:translateY(-4px); }
+
+  /* speed strip (showcase 01) */
+  .speed-flow{ display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:26px; }
+  .speed-step{ display:flex; flex-direction:column; align-items:center; gap:8px; flex:1; text-align:center; }
+  .speed-step .ss-icon{ width:40px;height:40px;border-radius:11px; background:rgba(255,255,255,0.05); border:1px solid var(--glass-border); display:flex; align-items:center; justify-content:center; }
+  .speed-step .ss-icon svg{ width:17px;height:17px; stroke:var(--teal-soft); }
+  .speed-step span{ font-size:11px; color:var(--text-faint); font-weight:600; }
+  .speed-step.done .ss-icon{ background:rgba(255,59,48,0.14); border-color:rgba(255,59,48,0.4); }
+  .speed-arrow{ color:var(--glass-border-hover); font-size:14px; margin-top:-20px; }
+  .speed-big{ text-align:center; padding-top:18px; border-top:1px dashed var(--glass-border); }
+  .speed-big .sb-num{ font-family:var(--font-display); font-size:44px; font-weight:800; color:var(--text); }
+  .speed-big .sb-num span{ color:var(--teal-soft); }
+  .speed-big .sb-label{ font-family:var(--font-mono); font-size:11px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.06em; margin-top:4px; }
+
+  /* stock list (showcase 02) */
+  .stock-list{ display:flex; flex-direction:column; gap:14px; margin-bottom:16px; }
+  .stock-item{ display:grid; grid-template-columns:1fr 2fr auto; align-items:center; gap:14px; }
+  .stock-item .si-name{ font-size:12.5px; color:var(--text-dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .stock-item .si-bar{ height:6px; border-radius:100px; background:rgba(255,255,255,0.06); overflow:hidden; }
+  .stock-item .si-fill{ width:0; height:100%; border-radius:100px; background:linear-gradient(90deg, var(--teal-soft), var(--teal)); transition:width 1.1s cubic-bezier(.16,.8,.24,1); }
+  .showcase-row.in-view .si-fill{ width:var(--w); }
+  .stock-item .si-qty{ font-family:var(--font-mono); font-size:12px; color:var(--text-faint); }
+  .stock-item.low .si-name{ color:var(--amber-soft); }
+  .stock-item.low .si-fill{ background:linear-gradient(90deg, var(--amber-soft), var(--amber)); }
+  .stock-item.low .si-qty{ color:var(--amber-soft); }
+  .stock-footer{ display:flex; justify-content:space-between; align-items:center; padding-top:16px; border-top:1px solid var(--glass-border); flex-wrap:wrap; gap:10px; }
+  .low-flag{ display:inline-flex; align-items:center; gap:7px; font-size:11.5px; font-weight:600; color:var(--amber-soft); background:rgba(255,106,44,0.12); border:1px solid rgba(255,106,44,0.35); padding:6px 12px; border-radius:100px; }
+  .low-flag svg{ width:12px;height:12px; stroke:var(--amber-soft); }
+  .stock-value{ font-size:12.5px; color:var(--text-faint); }
+  .stock-value b{ color:var(--text); font-family:var(--font-mono); }
+
+  /* offline mock (showcase 04) */
+  .offline-mock .off-status{ display:inline-flex; align-items:center; gap:9px; font-family:var(--font-mono); font-size:11.5px; font-weight:600; color:var(--amber-soft); background:rgba(255,106,44,0.1); border:1px solid rgba(255,106,44,0.3); padding:7px 14px; border-radius:100px; margin-bottom:20px; }
+  .offline-mock .off-status .dot{ width:7px;height:7px;border-radius:50%; background:var(--amber-soft); animation:pulse 1.8s ease-in-out infinite; }
+  .off-queue{ display:flex; flex-direction:column; gap:10px; margin-bottom:16px; }
+  .off-item{ display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.035); border:1px solid var(--glass-border); border-radius:10px; padding:11px 14px; font-size:12.5px; color:var(--text-dim); }
+  .off-item .oi-amt{ font-family:var(--font-mono); color:var(--text); }
+  .off-item .oi-tag{ font-family:var(--font-mono); font-size:9.5px; color:var(--amber-soft); border:1px solid rgba(255,106,44,0.35); padding:2px 7px; border-radius:100px; margin-left:8px; }
+  .off-sync-note{ font-size:12px; color:var(--text-faint); display:flex; align-items:center; gap:8px; }
+  .off-sync-note svg{ width:13px;height:13px; stroke:var(--teal-soft); }
+
+  @media (max-width: 900px){
+    .showcase-row, .showcase-row.reverse{ grid-template-columns:1fr; gap:32px; }
+    .showcase-row.reverse .showcase-copy, .showcase-row.reverse .showcase-visual{ order:initial; }
+    .showcase{ gap:64px; }
+    .showcase-copy p{ max-width:none; }
+  }
+
+  /* ---------- CAPABILITY STRIP ---------- */
+  .cap-strip{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:100px; }
+  .cap-card{ padding:24px 22px; transition: background .3s ease, transform .3s ease, border-color .3s ease; }
+  .cap-card:hover{ background:var(--glass-hover); transform: translateY(-5px); border-color:var(--glass-border-hover); }
+  .cap-icon{
+    width:38px;height:38px; border-radius:11px; background:rgba(255,255,255,0.06); border:1px solid var(--glass-border);
+    display:flex; align-items:center; justify-content:center; margin-bottom:16px;
     transition: transform .35s cubic-bezier(.34,1.56,.64,1), background .3s ease, border-color .3s ease;
   }
-  .feature-card:hover .feature-icon{ transform:rotate(-6deg) scale(1.08); background:rgba(45,212,191,0.12); border-color:rgba(45,212,191,0.4); }
-  .feature-icon svg{ width:19px; height:19px; stroke:var(--teal-soft); }
-  .feature-card h3{ font-size:17px; margin-bottom:9px; }
-  .feature-card p{ font-size:14px; color:var(--text-dim); }
+  .cap-card:hover .cap-icon{ transform:rotate(-6deg) scale(1.08); background:rgba(255,59,48,0.12); border-color:rgba(255,59,48,0.4); }
+  .cap-icon svg{ width:17px; height:17px; stroke:var(--teal-soft); }
+  .cap-card h4{ font-family:var(--font-display); font-weight:700; font-size:14.5px; margin-bottom:7px; color:var(--text); }
+  .cap-card p{ font-size:12.5px; color:var(--text-dim); line-height:1.5; }
+  @media (max-width:900px){ .cap-strip{ grid-template-columns:1fr 1fr; margin-top:64px; } }
+  @media (max-width:520px){ .cap-strip{ grid-template-columns:1fr; } }
 
   /* ---------- HOW IT WORKS ---------- */
   .steps{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
@@ -310,14 +517,13 @@
   .step p{ color:var(--text-dim); font-size:14.5px; }
 
   /* ---------- DASHBOARD MOCKUP ---------- */
-  .dash-glow{ position:absolute; bottom:-200px; left:50%; transform:translateX(-50%); width:900px; height:500px; background:radial-gradient(ellipse, rgba(45,212,191,0.18), transparent 65%); pointer-events:none; }
+  .dash-glow{ position:absolute; bottom:-200px; left:50%; transform:translateX(-50%); width:900px; height:500px; background:radial-gradient(ellipse, rgba(255,59,48,0.18), transparent 65%); pointer-events:none; }
   .dash-mock{ padding:24px; position:relative; z-index:2; }
   .dash-top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
   .dash-dots{ display:flex; gap:6px; }
   .dash-dots span{ width:9px;height:9px;border-radius:50%; background:var(--glass-border-hover); }
   .dash-tabs{ display:flex; gap:20px; font-family:var(--font-mono); font-size:11.5px; color:var(--text-faint); }
   .dash-tabs .active{ color:var(--amber-soft); }
-  .dash-body{ display:grid; grid-template-columns:1.4fr 1fr; gap:18px; }
   .dash-stats{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; }
   .stat-box{ background:rgba(255,255,255,0.035); border:1px solid var(--glass-border); border-radius:12px; padding:15px; }
   .stat-box .label{ font-family:var(--font-mono); font-size:10.5px; color:var(--text-faint); margin-bottom:8px; }
@@ -341,25 +547,87 @@
   .queue-item{ display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px solid var(--glass-border); font-size:12.5px; }
   .queue-item:last-child{ border-bottom:none; }
   .queue-item .qname{ display:flex; align-items:center; gap:10px; }
-  .queue-item .avatar{ width:24px;height:24px;border-radius:50%; background:rgba(45,212,191,0.16); border:1px solid rgba(45,212,191,0.35); display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-size:9px; font-weight:700; color:var(--teal-soft); }
+  .queue-item .avatar{ width:24px;height:24px;border-radius:50%; background:rgba(255,59,48,0.16); border:1px solid rgba(255,59,48,0.35); display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-size:9px; font-weight:700; color:var(--teal-soft); }
   .queue-item .amt{ font-family:var(--font-mono); color:var(--amber-soft); }
 
-  /* ---------- INTEGRATIONS ---------- */
-  .integ-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
-  .integ-card{ padding:26px 18px; display:flex; flex-direction:column; align-items:center; gap:12px; text-align:center; transition: transform .4s cubic-bezier(.34,1.56,.64,1), border-color .3s ease, background .3s ease; }
-  .integ-card:hover{ transform:translateY(-7px); border-color:var(--glass-border-hover); background:var(--glass-hover); }
-  .integ-mark{ width:44px;height:44px;border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid var(--glass-border); display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-weight:700; font-size:15px; color:var(--teal-soft); transition: background .35s ease, color .35s ease, transform .35s ease, border-color .35s ease; }
-  .integ-mark svg{ width:20px; height:20px; }
-  .integ-card:hover .integ-mark{ background:rgba(255,176,32,0.12); color:var(--amber); border-color:rgba(255,176,32,0.4); transform:scale(1.1); }
-  .integ-card span{ font-size:13px; font-weight:600; color:var(--text-dim); }
+  /* ---------- SECTION 1: UNIPOS IN ACTION (checkout demo) ---------- */
+  .pos-demo{ position:relative; max-width:960px; margin:0 auto; }
+  .pos-mock{ padding:22px; position:relative; z-index:2; }
+  .pos-body{ display:grid; grid-template-columns:1.2fr 1fr; gap:18px; }
+  .pos-search{ display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.035); border:1px solid var(--glass-border); border-radius:12px; padding:11px 14px; margin-bottom:14px; color:var(--text-faint); font-size:13px; }
+  .pos-search svg{ width:15px;height:15px; stroke:var(--text-faint); flex-shrink:0; }
+  .pos-products{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .pos-product{ background:rgba(255,255,255,0.035); border:1px solid var(--glass-border); border-radius:12px; padding:12px; display:flex; align-items:center; gap:10px; transition: border-color .3s ease, background .3s ease, transform .3s ease; }
+  .pos-product:hover{ border-color:var(--glass-border-hover); background:var(--glass-hover); transform:translateY(-2px); }
+  .pp-icon{ width:34px;height:34px;border-radius:9px; background:rgba(255,59,48,0.14); border:1px solid rgba(255,59,48,0.3); display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-size:10px; font-weight:700; color:var(--teal-soft); flex-shrink:0; }
+  .pp-info{ min-width:0; }
+  .pp-name{ font-size:12px; color:var(--text); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .pp-price{ font-family:var(--font-mono); font-size:11px; color:var(--text-faint); margin-top:2px; }
+  .pos-cart{ background:rgba(255,255,255,0.035); border:1px solid var(--glass-border); border-radius:14px; padding:18px; display:flex; flex-direction:column; height:100%; }
+  .pos-cart .label{ font-family:var(--font-mono); font-size:10.5px; color:var(--text-faint); letter-spacing:.06em; margin-bottom:12px; }
+  .pos-cart-item{ display:flex; justify-content:space-between; font-size:12.5px; color:var(--text-dim); padding:6px 0; }
+  .pos-cart-item span:last-child{ color:var(--text); font-family:var(--font-mono); }
+  .pos-cart-divider{ height:1px; background:var(--glass-border); margin:10px 0; }
+  .pos-cart-row{ display:flex; justify-content:space-between; font-size:12.5px; color:var(--text-faint); padding:4px 0; }
+  .pos-cart-row span:last-child{ font-family:var(--font-mono); color:var(--text-dim); }
+  .pos-cart-row.discount span:last-child{ color:var(--teal-soft); }
+  .pos-cart-total{ display:flex; justify-content:space-between; align-items:baseline; font-family:var(--font-display); font-weight:800; font-size:19px; color:var(--text); padding-top:10px; margin-top:6px; border-top:1px dashed var(--glass-border); }
+  .pos-cart-total span:last-child{ color:var(--amber-soft); }
+  .pos-pay-methods{ display:flex; gap:8px; margin:14px 0; }
+  .pm{ flex:1; text-align:center; padding:8px 0; border-radius:9px; border:1px solid var(--glass-border); font-size:11.5px; font-weight:600; color:var(--text-faint); transition: border-color .25s ease, color .25s ease, background .25s ease; }
+  .pm.active{ border-color:rgba(255,59,48,0.4); background:rgba(255,59,48,0.12); color:var(--teal-soft); }
+  .pos-complete{ width:100%; margin-top:auto; }
+  .pos-complete:active{ transform:scale(0.97); }
+
+  .pos-receipt-peek{ position:absolute; right:-16px; bottom:-22px; width:140px; background:#111114; border:1px solid var(--glass-border); border-radius:10px 10px 0 0; padding:14px 14px 16px; font-family:var(--font-mono); font-size:9.5px; color:#C7C6CC; box-shadow:0 24px 50px -20px rgba(0,0,0,0.7); transform:rotate(4deg); z-index:3;
+    clip-path: polygon(0 0,100% 0,100% 92%,92% 100%,84% 92%,76% 100%,68% 92%,60% 100%,52% 92%,44% 100%,36% 92%,28% 100%,20% 92%,12% 100%,4% 92%,0 100%); }
+  .pos-receipt-peek .rp-t{ color:var(--text); font-weight:700; letter-spacing:.05em; text-align:center; margin-bottom:6px; }
+  .pos-receipt-peek .rp-line{ display:flex; justify-content:space-between; margin:2px 0; }
+  .pos-receipt-peek .rp-total{ display:flex; justify-content:space-between; color:var(--amber-soft); font-weight:700; margin-top:6px; border-top:1px dashed rgba(255,255,255,0.15); padding-top:6px; }
+
+  .pos-chip{ position:absolute; display:flex; align-items:center; gap:7px; background:rgba(14,7,6,0.85); border:1px solid var(--glass-border); border-radius:100px; padding:8px 14px; font-size:11.5px; font-weight:600; color:var(--text-dim); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); z-index:4; animation: chipFloat 5s ease-in-out infinite; box-shadow:0 10px 26px -10px rgba(0,0,0,0.6); }
+  .pos-chip .dot{ width:6px;height:6px;border-radius:50%; background:var(--teal-soft); box-shadow:0 0 8px var(--teal-soft); }
+  .pc-1{ top:-18px; left:24px; animation-delay:0s; }
+  .pc-2{ top:16%; right:-24px; animation-delay:.7s; }
+  .pc-3{ top:64%; left:-30px; animation-delay:1.4s; }
+  .pc-4{ bottom:-16px; left:34%; animation-delay:2.1s; }
+  .pc-5{ top:40%; left:-8px; transform:translateX(-100%); animation-delay:2.8s; }
+  @keyframes chipFloat{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-7px); } }
+  .pc-5{ animation-name:chipFloat5; }
+  @keyframes chipFloat5{ 0%,100%{ transform:translateX(-100%) translateY(0); } 50%{ transform:translateX(-100%) translateY(-7px); } }
+
+  @media (max-width: 900px){
+    .pos-body{ grid-template-columns:1fr; }
+    .pos-chip{ display:none; }
+    .pos-receipt-peek{ display:none; }
+  }
+
+  /* ---------- SECTION 2: CONNECTED WORKFLOW ---------- */
+  .workflow{ position:relative; display:grid; grid-template-columns:repeat(6,1fr); gap:8px; padding-top:6px; }
+  .wf-track{ position:absolute; top:29px; left:calc(100%/12); right:calc(100%/12); height:2px; background:linear-gradient(90deg, rgba(255,59,48,0.5), rgba(255,106,44,0.5)); z-index:0; overflow:hidden; border-radius:2px; }
+  .wf-pulse{ position:absolute; top:-3px; left:0; width:8px;height:8px;border-radius:50%; background:var(--teal-soft); box-shadow:0 0 12px var(--teal-soft); animation: wfPulse 4.5s linear infinite; }
+  @keyframes wfPulse{ 0%{ left:0%; opacity:0; } 8%{opacity:1;} 92%{opacity:1;} 100%{ left:calc(100% - 8px); opacity:0; } }
+  .wf-node{ position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; text-align:center; gap:10px; }
+  .wf-icon{ width:58px;height:58px;border-radius:50%; background:var(--panel); border:1px solid var(--glass-border); display:flex; align-items:center; justify-content:center; transition:transform .35s cubic-bezier(.34,1.56,.64,1), border-color .3s ease, background .3s ease; }
+  .wf-node:hover .wf-icon{ transform:scale(1.1); border-color:rgba(255,59,48,0.4); background:rgba(255,59,48,0.1); }
+  .wf-icon svg{ width:22px;height:22px; stroke:var(--teal-soft); }
+  .wf-node h3{ font-size:14px; }
+  .wf-node p{ font-size:11.5px; color:var(--text-faint); line-height:1.4; }
+  @media (max-width:900px){
+    .workflow{ grid-template-columns:repeat(3,1fr); row-gap:36px; }
+    .wf-track{ display:none; }
+  }
+  @media (max-width:520px){
+    .workflow{ grid-template-columns:repeat(2,1fr); }
+  }
 
   /* ---------- PRICING ---------- */
   .pricing-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; align-items:stretch; }
   .price-card{ padding:34px 28px; display:flex; flex-direction:column; transition:transform .35s cubic-bezier(.34,1.56,.64,1), border-color .3s ease, background .3s ease; }
   .price-card:hover{ transform:translateY(-8px); border-color:var(--glass-border-hover); }
-  .price-card.featured{ background:linear-gradient(180deg, rgba(45,212,191,0.08), rgba(255,255,255,0.03)); border-color:rgba(45,212,191,0.4); position:relative; transform:scale(1.03); box-shadow:0 30px 70px -30px rgba(45,212,191,0.25); }
+  .price-card.featured{ background:linear-gradient(180deg, rgba(255,59,48,0.08), rgba(255,255,255,0.03)); border-color:rgba(255,59,48,0.4); position:relative; transform:scale(1.03); box-shadow:0 30px 70px -30px rgba(255,59,48,0.25); }
   .price-card.featured:hover{ transform:scale(1.03) translateY(-8px); }
-  .price-badge{ position:absolute; top:-13px; right:26px; background:var(--teal); color:#04211D; font-family:var(--font-mono); font-size:10.5px; font-weight:700; padding:5px 12px; border-radius:100px; box-shadow:0 4px 14px rgba(45,212,191,0.45); letter-spacing:.02em; }
+  .price-badge{ position:absolute; top:-13px; right:26px; background:var(--teal); color:#2A0500; font-family:var(--font-mono); font-size:10.5px; font-weight:700; padding:5px 12px; border-radius:100px; box-shadow:0 4px 14px rgba(255,59,48,0.45); letter-spacing:.02em; }
   .price-tier{ font-family:var(--font-mono); font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--teal-soft); margin-bottom:10px; }
   .price-amt{ font-family:var(--font-display); font-size:38px; font-weight:800; margin-bottom:6px; color:var(--text); }
   .price-amt .per{ font-size:13px; font-weight:500; color:var(--text-faint); }
@@ -378,7 +646,7 @@
   .testi-stars{ color:#FFD700; font-size:13px; margin-bottom:15px; letter-spacing:2px; }
   .testi-card p{ font-size:14.5px; color:var(--text-dim); margin-bottom:20px; line-height:1.6; }
   .testi-who{ display:flex; align-items:center; gap:12px; }
-  .testi-who .av{ width:36px;height:36px;border-radius:50%; background:rgba(45,212,191,0.14); border:1px solid rgba(45,212,191,0.35); display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-weight:700; font-size:12px; color:var(--teal-soft); }
+  .testi-who .av{ width:36px;height:36px;border-radius:50%; background:rgba(255,59,48,0.14); border:1px solid rgba(255,59,48,0.35); display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-weight:700; font-size:12px; color:var(--teal-soft); }
   .testi-who .name{ font-weight:600; font-size:13.5px; color:var(--text); }
   .testi-who .role{ font-size:12px; color:var(--text-faint); }
 
@@ -419,14 +687,14 @@
     transition: border-color .25s ease, box-shadow .25s ease, background .25s ease;
   }
   .cf-field input::placeholder, .cf-field textarea::placeholder{ color:var(--text-faint); }
-  .cf-field input:focus, .cf-field textarea:focus{ border-color:var(--teal); box-shadow:0 0 0 3px rgba(45,212,191,0.14); outline:none; background:rgba(255,255,255,0.05); }
+  .cf-field input:focus, .cf-field textarea:focus{ border-color:var(--teal); box-shadow:0 0 0 3px rgba(255,59,48,0.14); outline:none; background:rgba(255,255,255,0.05); }
   .cf-submit{ width:100%; margin-top:4px; }
   .form-success{ display:none; font-family:var(--font-mono); font-size:13.5px; color:var(--teal-soft); margin-top:14px; text-align:center; }
 
   /* ---------- CTA ---------- */
   .cta-section{ text-align:center; }
   .cta-box{ padding:76px 40px; position:relative; overflow:hidden; }
-  .cta-box::before{ content:''; position:absolute; inset:0; background: radial-gradient(circle at 22% 20%, rgba(45,212,191,0.16), transparent 45%), radial-gradient(circle at 80% 80%, rgba(255,176,32,0.12), transparent 45%); pointer-events:none; }
+  .cta-box::before{ content:''; position:absolute; inset:0; background: radial-gradient(circle at 22% 20%, rgba(255,59,48,0.16), transparent 45%), radial-gradient(circle at 80% 80%, rgba(255,106,44,0.12), transparent 45%); pointer-events:none; }
   .cta-box h2{ font-size:clamp(26px,3.8vw,40px); margin-bottom:16px; position:relative; }
   .cta-box p{ color:var(--text-dim); margin-bottom:32px; font-size:16px; position:relative; }
   .cta-form{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; position:relative; }
@@ -448,9 +716,10 @@
   .footer-col a:hover{ color:var(--teal-soft); transform:translateX(3px); }
   .footer-bottom{ display:flex; justify-content:space-between; align-items:center; padding-top:24px; border-top:1px solid var(--glass-border); font-size:12.5px; color:var(--text-faint); flex-wrap:wrap; gap:12px; }
   .footer-socials{ display:flex; gap:12px; }
-  .footer-socials a{ width:32px;height:32px; border:1px solid var(--glass-border); border-radius:50%; display:flex; align-items:center; justify-content:center; transition:background .2s ease, border-color .2s ease; }
-  .footer-socials a:hover{ background:rgba(255,255,255,0.08); border-color:var(--glass-border-hover); }
-  .footer-socials svg{ width:14px;height:14px; stroke:var(--text-dim); }
+  .footer-socials a{ width:32px;height:32px; border:1px solid var(--glass-border); border-radius:50%; display:flex; align-items:center; justify-content:center; transition:background .25s ease, border-color .25s ease, transform .25s cubic-bezier(.34,1.56,.64,1); }
+  .footer-socials a:hover{ background:rgba(255,59,48,0.14); border-color:rgba(255,59,48,0.4); transform:translateY(-3px) scale(1.08); }
+  .footer-socials svg{ width:14px;height:14px; stroke:var(--text-dim); transition:stroke .25s ease; }
+  .footer-socials a:hover svg{ stroke:var(--teal-soft); }
 
   .burger{ display:none; width:22px;height:16px; position:relative; flex-direction:column; justify-content:space-between; margin-right:4px; }
   .burger span{ display:block; height:2px; background:var(--text); border-radius:2px; }
@@ -461,13 +730,10 @@
     .logo-img{ height:48px; }
   }
   @media (max-width: 900px){
-    .features-grid{ grid-template-columns:1fr; }
     .steps{ grid-template-columns:1fr; }
     .pricing-grid{ grid-template-columns:1fr; }
     .testi-grid{ grid-template-columns:1fr; }
     .footer-grid{ grid-template-columns:1fr 1fr; }
-    .dash-body{ grid-template-columns:1fr; }
-    .integ-grid{ grid-template-columns:repeat(2,1fr); }
     .about-grid, .contact-grid{ grid-template-columns:1fr; gap:36px; }
     .cf-row{ grid-template-columns:1fr; }
     .hero-stat{ padding:0 18px; }
@@ -492,7 +758,6 @@
     .bento-card{ padding:22px 18px; }
     .section-head{ margin-bottom:44px; }
     section{ padding:80px 0; }
-    .integ-grid{ grid-template-columns:1fr 1fr; gap:10px; }
     .about-stats, .dash-stats{ grid-template-columns:1fr 1fr; }
     .footer-grid{ grid-template-columns:1fr; gap:32px; }
     .footer-bottom{ flex-direction:column; align-items:flex-start; gap:16px; }
@@ -503,7 +768,6 @@
   }
   @media (max-width: 380px){
     .hero h1{ font-size:32px; }
-    .integ-grid{ grid-template-columns:1fr 1fr; }
     .about-stats, .dash-stats{ grid-template-columns:1fr; }
     .hero-stat{ width:100%; border-top:none !important; }
     .btn{ font-size:13.5px; padding:10px 16px; }
@@ -511,6 +775,7 @@
 </style>
 </head>
 <body>
+<div id="top-ticks" aria-hidden="true"></div>
 <div id="scroll-progress"></div>
 
 <header id="header">
@@ -538,60 +803,238 @@
     <div class="hero-blob blob-1"></div>
     <div class="hero-blob blob-2"></div>
     <div class="hero-particles" id="heroParticles"></div>
-    <div class="container hero-inner">
-      <div class="hero-badge glass">
-        <span class="pill-tag">NEW</span> Built for modern businesses
-      </div>
-      <h1>Every sale, <span class="grad">printed perfectly.</span></h1>
-      <p class="lead">UniPOS is the flexible point-of-sale platform for businesses that need reliable operations. Choose a ready-made system, go online, download your POS, or create a custom solution designed specifically for your business.</p>
-      <div class="hero-actions">
-        <a href="#cta" class="btn btn-amber">Request Custom Software</a>
-        <a href="#dash" class="btn btn-outline glass">See it in action</a>
-      </div>
-      <div class="hero-stats">
-        <div class="hero-stat"><div class="n"><span class="accent">12,400+</span></div><div class="l">Shops running UniPOS</div></div>
-        <div class="hero-stat"><div class="n">1.8s</div><div class="l">Avg. checkout time</div></div>
-        <div class="hero-stat"><div class="n">99.99%</div><div class="l">Uptime</div></div>
-        <div class="hero-stat"><div class="n">100%</div><div class="l">Works offline</div></div>
-      </div>
-    </div>
     <div class="container">
+      <div class="hero-top">
+        <div class="hero-copy">
+          <div class="hero-badge glass">
+            <span class="pill-tag">NEW</span> Built for modern businesses
+          </div>
+          <h1>Every sale, <span class="grad">managed perfectly.</span></h1>
+          <p class="lead">UniPOS is the flexible point-of-sale platform for businesses that need reliable operations. Choose a ready-made system, go online, download your POS, or create a custom solution designed specifically for your business.</p>
+          <div class="hero-actions">
+            <a href="#cta" class="btn btn-amber">Request Custom Software</a>
+            <a href="#dash" class="btn btn-outline glass">See it in action</a>
+          </div>
+        </div>
+        <div class="hero-illustration reveal">
+          <svg class="device-arc" viewBox="0 0 400 400" fill="none">
+            <defs>
+              <linearGradient id="arcGrad" x1="0" y1="1" x2="1" y2="0">
+                <stop offset="0%" stop-color="var(--teal)" stop-opacity="0.65"/>
+                <stop offset="100%" stop-color="var(--amber)" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path d="M40,340 C40,140 180,20 380,60" stroke="url(#arcGrad)" stroke-width="2"/>
+          </svg>
+          <div class="device-printer">
+            <div class="dp-slot"></div>
+            <div class="dp-paper"></div>
+            <div class="dp-body"></div>
+          </div>
+          <div>
+            <div class="device-monitor">
+              <div class="device-screen">
+                <div class="ds-tabs"><span class="active">Dashboard</span><span>Sales</span><span>Products</span><span>Reports</span></div>
+                <div class="device-tiles">
+                  <div class="device-tile"><div class="dt-l">Total Sales</div><div class="dt-v">$12,430</div></div>
+                  <div class="device-tile"><div class="dt-l">Transactions</div><div class="dt-v">256</div></div>
+                  <div class="device-tile"><div class="dt-l">Avg Order</div><div class="dt-v">$48.56</div></div>
+                  <div class="device-tile"><div class="dt-l">Items Sold</div><div class="dt-v">1,320</div></div>
+                </div>
+                <svg class="device-chart" viewBox="0 0 300 60" preserveAspectRatio="none">
+                  <polyline class="chart-draw" points="0,45 30,38 60,42 90,25 120,30 150,15 180,20 210,10 240,18 270,8 300,14" fill="none" stroke="var(--teal-soft)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <div class="device-list">
+                  <div class="dl-row"><span>Wireless Headphones</span><span>124</span></div>
+                  <div class="dl-row"><span>Smart Watch</span><span>98</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="device-stand"></div>
+            <div class="device-stand-base"></div>
+          </div>
+          <div class="device-scanner"></div>
+        </div>
+      </div>
+
+      <div class="hero-stats-row reveal-stagger">
+        <div class="hstat-card glass">
+          <div class="hstat-icon ic-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg></div>
+          <div class="hn hstat-num-red count-up" data-count="12400" data-suffix="+">0+</div>
+          <div class="hl">Shops Running UniPOS</div>
+          <div class="hd">Trusted by thousands of businesses worldwide.</div>
+        </div>
+        <div class="hstat-card glass">
+          <div class="hstat-icon ic-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/></svg></div>
+          <div class="hn hstat-num-orange count-up" data-count="1.8" data-suffix="s">0s</div>
+          <div class="hl">Avg. Checkout Time</div>
+          <div class="hd">Lightning fast performance that keeps your line moving.</div>
+        </div>
+        <div class="hstat-card glass">
+          <div class="hstat-icon ic-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.5 9 8 11 4.5-2 8-6 8-11V5l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg></div>
+          <div class="hn hstat-num-green count-up" data-count="99.99" data-suffix="%">0%</div>
+          <div class="hl">Uptime Guarantee</div>
+          <div class="hd">Reliable, secure, and always ready when you are.</div>
+        </div>
+        <div class="hstat-card glass">
+          <div class="hstat-icon ic-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1"/></svg></div>
+          <div class="hn hstat-num-blue count-up" data-count="100" data-suffix="%">0%</div>
+          <div class="hl">Works Offline</div>
+          <div class="hd">Keep selling even without internet. Sync when back.</div>
+        </div>
+        <div class="hstat-card glass">
+          <div class="hstat-icon ic-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg></div>
+          <div class="hn hstat-num-purple">Real-time</div>
+          <div class="hl">Analytics &amp; Reports</div>
+          <div class="hd">Live insights to help you make smarter decisions.</div>
+        </div>
+      </div>
+
+      <div class="hero-trust-strip glass reveal">
+        <div class="htrust-item">
+          <div class="hti-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></div>
+          <div><div class="hti-t">Easy to Use</div><div class="hti-d">Intuitive interface for everyone</div></div>
+        </div>
+        <div class="htrust-item">
+          <div class="hti-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.5 9 8 11 4.5-2 8-6 8-11V5l-8-3Z"/></svg></div>
+          <div><div class="hti-t">Secure &amp; Reliable</div><div class="hti-d">Enterprise-grade security</div></div>
+        </div>
+        <div class="htrust-item">
+          <div class="hti-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17 9 11 13 15 21 7"/><path d="M15 7h6v6"/></svg></div>
+          <div><div class="hti-t">Scalable</div><div class="hti-d">Grows with your business</div></div>
+        </div>
+        <div class="htrust-item">
+          <div class="hti-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3v5Z"/><path d="M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3v5Z"/></svg></div>
+          <div><div class="hti-t">24/7 Support</div><div class="hti-d">We're here whenever you need us</div></div>
+        </div>
+      </div>
+
       <div class="bento reveal-stagger">
-        <div class="bento-card glass bento-receipt">
-          <div class="bc-label">Live checkout</div>
-          <div class="bc-title">Every transaction, itemized</div>
-          <div class="receipt-holder">
-            <div class="printer-slot"></div>
-            <div class="receipt">
-              <div class="r-head"><div class="t">UniPOS</div><div class="s">Order #4471 — Register 2</div></div>
-              <hr>
-              <div class="r-line" style="animation-delay:.5s"><span>Checkout speed</span><b>1.8s</b></div>
-              <div class="r-line" style="animation-delay:.7s"><span>Offline mode</span><b>Always on</b></div>
-              <div class="r-line" style="animation-delay:.9s"><span>Inventory sync</span><b>Realtime</b></div>
-              <div class="r-line" style="animation-delay:1.1s"><span>Locations</span><b>Unlimited</b></div>
-              <div class="r-line" style="animation-delay:1.3s"><span>Setup time</span><b>12 min</b></div>
-              <hr>
-              <div class="r-total"><span>TOTAL VALUE</span><span>PRICELESS</span></div>
-              <div class="r-barcode"></div>
-              <div class="r-thanks">THANK YOU — COME AGAIN</div>
+        <div class="bento-col">
+          <div class="bento-card glass">
+            <div class="bc-head">
+              <div>
+                <div class="bc-label">Live sales overview</div>
+                <div class="bc-title">Every transaction, itemized</div>
+              </div>
+              <span class="bc-live-tag"><span class="dot-live"></span>Live</span>
+            </div>
+            <div class="bc-live-row">
+              <div class="receipt-holder">
+                <div class="printer-slot"></div>
+                <div class="receipt">
+                  <div class="r-head"><div class="t">UniPOS</div><div class="s">Order #4471 — Register 2</div></div>
+                  <hr>
+                  <div class="r-line" style="animation-delay:.5s"><span>Checkout speed</span><b>1.8s</b></div>
+                  <div class="r-line" style="animation-delay:.7s"><span>Offline mode</span><b>Always on</b></div>
+                  <div class="r-line" style="animation-delay:.9s"><span>Inventory sync</span><b>Realtime</b></div>
+                  <div class="r-line" style="animation-delay:1.1s"><span>Locations</span><b>Unlimited</b></div>
+                  <div class="r-line" style="animation-delay:1.3s"><span>Setup time</span><b>12 min</b></div>
+                  <hr>
+                  <div class="r-total"><span>TOTAL VALUE</span><span>PRICELESS</span></div>
+                  <div class="r-barcode"></div>
+                  <div class="r-thanks">THANK YOU — COME AGAIN</div>
+                </div>
+              </div>
+              <div class="reg-illustration">
+                <div>
+                  <div class="reg-monitor">
+                    <div class="reg-total"><div class="rt-l">Total</div><div class="rt-v">$1,245.00</div></div>
+                    <div class="reg-tiles">
+                      <div class="reg-tile"></div><div class="reg-tile"></div><div class="reg-tile"></div>
+                      <div class="reg-tile"></div><div class="reg-tile"></div><div class="reg-tile"></div>
+                    </div>
+                  </div>
+                  <div class="reg-stand"></div>
+                  <div class="reg-base"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bento-card glass">
+            <div class="bc-label">Sales today</div>
+            <div class="bc-title">Sales summary</div>
+            <div class="summary-grid">
+              <div class="summary-tile">
+                <div class="st-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 4 6v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6l-2-4Z"/><path d="M4 6h16M9 10a3 3 0 0 0 6 0"/></svg></div>
+                <div class="st-label">Total Sales</div>
+                <div class="st-val count-up" data-count="8429.32" data-prefix="$">$0.00</div>
+                <div class="st-delta">↑ 12.5%</div>
+              </div>
+              <div class="summary-tile">
+                <div class="st-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></div>
+                <div class="st-label">Transactions</div>
+                <div class="st-val count-up" data-count="162">0</div>
+                <div class="st-delta">↑ 8.1%</div>
+              </div>
+              <div class="summary-tile">
+                <div class="st-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 8-9-5-9 5 9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></div>
+                <div class="st-label">Items Sold</div>
+                <div class="st-val count-up" data-count="1246">0</div>
+                <div class="st-delta">↑ 15.3%</div>
+              </div>
+              <div class="summary-tile">
+                <div class="st-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></div>
+                <div class="st-label">New Customers</div>
+                <div class="st-val count-up" data-count="32">0</div>
+                <div class="st-delta">↑ 6.7%</div>
+              </div>
             </div>
           </div>
         </div>
-        <div class="bento-card glass">
-          <div class="bc-label">Sync status</div>
-          <div class="bc-title">All registers connected</div>
-          <div class="bc-mini-badge"><span class="bc-pulse"></span> Syncing in real time</div>
-        </div>
-        <div class="bento-card glass">
-          <div class="bc-label">Average ticket size</div>
-          <div class="bc-title">Trending up this week</div>
-          <div class="bc-bignum">+34<span>%</span></div>
-        </div>
-        <div class="bento-card glass">
-          <div class="bc-label">Sales today</div>
-          <div class="bc-title">Hour by hour</div>
-          <div class="bc-mini-chart">
-            <div class="b" style="height:30%"></div><div class="b" style="height:48%"></div><div class="b" style="height:38%"></div><div class="b" style="height:64%"></div><div class="b" style="height:52%"></div><div class="b" style="height:80%"></div><div class="b" style="height:70%"></div><div class="b" style="height:92%"></div>
+
+        <div class="bento-col">
+          <div class="bento-card glass">
+            <div class="bc-head">
+              <div>
+                <div class="bc-label">Sync status</div>
+                <div class="bc-title">All registers connected</div>
+              </div>
+              <span class="bc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+            </div>
+            <span class="sync-pill"><span class="dot-live"></span>Syncing in real time</span>
+            <svg class="sync-wave" viewBox="0 0 300 50" preserveAspectRatio="none">
+              <polyline class="chart-draw" points="0,25 8,20 16,30 24,15 32,32 40,10 48,28 56,18 64,34 72,12 80,26 88,20 96,36 104,14 112,24 120,8 128,30 136,18 144,32 152,16 160,26 168,12 176,28 184,20 192,34 200,10 208,24 216,18 224,30 232,14 240,26 248,20 256,32 264,12 272,24 280,18 288,28 296,16 300,22" fill="none" stroke="var(--teal)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div class="sync-stats">
+              <div class="ss-item"><div class="ss-v count-up" data-count="8">0</div><div class="ss-l">Registers</div></div>
+              <div class="ss-item"><div class="ss-v count-up" data-count="98" data-suffix="%">0%</div><div class="ss-l">Sync Health</div></div>
+              <div class="ss-item"><div class="ss-v accent count-up" data-count="24" data-suffix="ms">0ms</div><div class="ss-l">Latency</div></div>
+            </div>
+          </div>
+
+          <div class="bento-card glass">
+            <div class="bc-label">Performance this week</div>
+            <div class="bc-title">Trending up this week</div>
+            <div class="perf-num"><span class="count-up" data-count="34" data-prefix="+">+0</span><span class="pct">%</span></div>
+            <div class="perf-sub">vs last week</div>
+            <svg class="perf-chart" viewBox="0 0 300 70" preserveAspectRatio="none">
+              <path class="chart-draw" d="M0,58 C40,56 70,54 100,48 C130,42 150,36 180,26 C210,16 230,14 260,8 C270,6 280,5 296,4" fill="none" stroke="var(--teal)" stroke-width="2.5" stroke-linecap="round"/>
+              <circle class="chart-dot" cx="296" cy="4" r="4.5" fill="var(--teal-soft)" style="filter:drop-shadow(0 0 6px var(--teal))"/>
+            </svg>
+          </div>
+
+          <div class="bento-card glass hour-card">
+            <div class="bc-head">
+              <div>
+                <div class="bc-label">Sales today</div>
+                <div class="bc-title">Sales by hour</div>
+              </div>
+              <span class="hour-select">Today ⌄</span>
+            </div>
+            <div class="hour-chart-wrap">
+              <div class="hour-tooltip" style="left:83%">8PM<b>$1,245</b></div>
+              <div class="hour-chart">
+                <div class="hb" style="--h:18%; transition-delay:0.0s"></div><div class="hb" style="--h:15%; transition-delay:0.025s"></div><div class="hb" style="--h:12%; transition-delay:0.05s"></div><div class="hb" style="--h:10%; transition-delay:0.075s"></div>
+                <div class="hb" style="--h:22%; transition-delay:0.1s"></div><div class="hb" style="--h:28%; transition-delay:0.125s"></div><div class="hb" style="--h:25%; transition-delay:0.15s"></div><div class="hb" style="--h:35%; transition-delay:0.175s"></div>
+                <div class="hb" style="--h:30%; transition-delay:0.2s"></div><div class="hb" style="--h:40%; transition-delay:0.225s"></div><div class="hb" style="--h:38%; transition-delay:0.25s"></div><div class="hb" style="--h:45%; transition-delay:0.275s"></div>
+                <div class="hb" style="--h:42%; transition-delay:0.3s"></div><div class="hb" style="--h:50%; transition-delay:0.325s"></div><div class="hb" style="--h:48%; transition-delay:0.35s"></div><div class="hb" style="--h:58%; transition-delay:0.375s"></div>
+                <div class="hb" style="--h:55%; transition-delay:0.4s"></div><div class="hb" style="--h:65%; transition-delay:0.425s"></div><div class="hb" style="--h:60%; transition-delay:0.45s"></div><div class="hb" style="--h:72%; transition-delay:0.475s"></div>
+                <div class="hb peak" style="--h:100%; transition-delay:0.5s"></div><div class="hb" style="--h:85%; transition-delay:0.525s"></div><div class="hb" style="--h:65%; transition-delay:0.55s"></div><div class="hb" style="--h:40%; transition-delay:0.575s"></div>
+              </div>
+            </div>
+            <div class="hour-axis"><span>12AM</span><span>4AM</span><span>8AM</span><span>12PM</span><span>4PM</span><span>8PM</span><span>11PM</span></div>
           </div>
         </div>
       </div>
@@ -611,39 +1054,132 @@
     <div class="container">
       <div class="section-head reveal">
         <div class="eyebrow" style="justify-content:center;">Built for the counter</div>
-        <h2>Everything happening at checkout, handled at once.</h2>
+        <h2>Everything your business needs to sell better.</h2>
         <p>UniPOS runs the register, the back office, and the storeroom from one screen — so nothing gets rung up twice, and nothing gets missed.</p>
       </div>
-      <div class="features-grid reveal-stagger">
-        <div class="feature-card glass">
-          <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/></svg></div>
-          <h3>Instant checkout</h3>
-          <p>Scan, tap, or type — every sale rings up in under two seconds, even on a busy Saturday line.</p>
+
+      <div class="showcase">
+        <!-- 01 SELL FASTER -->
+        <div class="showcase-row reveal">
+          <div class="showcase-copy">
+            <div class="showcase-num">01 — SELL FASTER</div>
+            <h3>Move from product to payment without the extra taps.</h3>
+            <p>Scan, tap, or type — UniPOS gets from an empty cart to a completed sale without unnecessary steps, even on a busy Saturday line.</p>
+          </div>
+          <div class="showcase-visual glass">
+            <div class="speed-flow">
+              <div class="speed-step done"><div class="ss-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></div><span>Scan</span></div>
+              <div class="speed-arrow">→</div>
+              <div class="speed-step done"><div class="ss-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></div><span>Add</span></div>
+              <div class="speed-arrow">→</div>
+              <div class="speed-step done"><div class="ss-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div><span>Pay</span></div>
+              <div class="speed-arrow">→</div>
+              <div class="speed-step done"><div class="ss-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><span>Done</span></div>
+            </div>
+            <div class="speed-big">
+              <div class="sb-num"><span class="count-up" data-count="1.8" data-suffix="s">0s</span></div>
+              <div class="sb-label">Average checkout time</div>
+            </div>
+          </div>
         </div>
-        <div class="feature-card glass">
-          <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
-          <h3>Live inventory sync</h3>
-          <p>Stock counts update across every register and location the moment an item sells — no end-of-day reconciling.</p>
+
+        <!-- 02 KNOW YOUR STOCK -->
+        <div class="showcase-row reverse reveal">
+          <div class="showcase-copy">
+            <div class="showcase-num">02 — KNOW YOUR STOCK</div>
+            <h3>See what's on the shelf before your customers ask.</h3>
+            <p>Stock counts update the moment an item sells. Low-stock items get flagged automatically, so a reorder never comes as a surprise.</p>
+          </div>
+          <div class="showcase-visual glass">
+            <div class="stock-list">
+              <div class="stock-item"><span class="si-name">Cold Brew, 16oz</span><div class="si-bar"><div class="si-fill" style="--w:82%; transition-delay:0s"></div></div><span class="si-qty">164</span></div>
+              <div class="stock-item"><span class="si-name">Croissant</span><div class="si-bar"><div class="si-fill" style="--w:44%; transition-delay:.12s"></div></div><span class="si-qty">38</span></div>
+              <div class="stock-item low"><span class="si-name">Matcha Powder</span><div class="si-bar"><div class="si-fill" style="--w:9%; transition-delay:.24s"></div></div><span class="si-qty">4</span></div>
+              <div class="stock-item"><span class="si-name">Gift Card</span><div class="si-bar"><div class="si-fill" style="--w:70%; transition-delay:.36s"></div></div><span class="si-qty">140</span></div>
+            </div>
+            <div class="stock-footer">
+              <span class="low-flag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg> 1 item low on stock</span>
+              <span class="stock-value">Inventory value <b>$18,420</b></span>
+            </div>
+          </div>
         </div>
-        <div class="feature-card glass">
-          <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg></div>
-          <h3>Sales you can read</h3>
-          <p>Plain-language reports on your best hours, best items, and best staff — no spreadsheet required.</p>
+
+        <!-- 03 UNDERSTAND YOUR BUSINESS -->
+        <div class="showcase-row reveal">
+          <div class="showcase-copy">
+            <div class="showcase-num">03 — UNDERSTAND YOUR BUSINESS</div>
+            <h3>Plain-language reports, not another spreadsheet.</h3>
+            <p>Today's sales, your top products, and the hours that matter most — read at a glance, right from the counter.</p>
+          </div>
+          <div class="showcase-visual dash-mock glass">
+            <div class="dash-top">
+              <div class="dash-dots"><span></span><span></span><span></span></div>
+              <div class="dash-tabs"><span class="active">Today</span><span>This week</span></div>
+            </div>
+            <div class="dash-stats">
+              <div class="stat-box"><div class="label">SALES TODAY</div><div class="value">$4,286 <span>+18%</span></div></div>
+              <div class="stat-box"><div class="label">TRANSACTIONS</div><div class="value">312 <span>+9%</span></div></div>
+            </div>
+            <div class="chart-box">
+              <div class="bar" style="--h:35%"></div>
+              <div class="bar" style="--h:52%"></div>
+              <div class="bar" style="--h:41%"></div>
+              <div class="bar" style="--h:68%"></div>
+              <div class="bar" style="--h:59%"></div>
+              <div class="bar" style="--h:83%"></div>
+              <div class="bar" style="--h:74%"></div>
+              <div class="bar" style="--h:96%"></div>
+              <div class="bar" style="--h:64%"></div>
+              <div class="bar" style="--h:48%"></div>
+            </div>
+            <div class="queue-box" style="margin-top:14px;">
+              <div class="label">TOP SELLERS TODAY</div>
+              <div class="queue-item"><span class="qname"><span class="avatar">CB</span>Cold Brew, 16oz</span><span class="amt">$742</span></div>
+              <div class="queue-item"><span class="qname"><span class="avatar">CR</span>Croissant</span><span class="amt">$518</span></div>
+              <div class="queue-item"><span class="qname"><span class="avatar">BW</span>Breakfast Wrap</span><span class="amt">$466</span></div>
+            </div>
+          </div>
         </div>
-        <div class="feature-card glass">
-          <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
-          <h3>Works without wifi</h3>
-          <p>Connection drops, UniPOS doesn't. Sales queue locally and sync the second you're back online.</p>
+
+        <!-- 04 NEVER STOP SELLING -->
+        <div class="showcase-row reverse reveal">
+          <div class="showcase-copy">
+            <div class="showcase-num">04 — NEVER STOP SELLING</div>
+            <h3>The line doesn't stop just because the wifi did.</h3>
+            <p>Keep selling even when the connection drops. UniPOS stores transactions locally and syncs everything the moment you're back online.</p>
+          </div>
+          <div class="showcase-visual glass offline-mock">
+            <span class="off-status"><span class="dot"></span> Offline — 3 sales queued</span>
+            <div class="off-queue">
+              <div class="off-item"><span>Order #4472<span class="oi-tag">queued</span></span><span class="oi-amt">$18.25</span></div>
+              <div class="off-item"><span>Order #4473<span class="oi-tag">queued</span></span><span class="oi-amt">$6.50</span></div>
+              <div class="off-item"><span>Order #4474<span class="oi-tag">queued</span></span><span class="oi-amt">$24.77</span></div>
+            </div>
+            <div class="off-sync-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg> Syncs automatically the moment you're back online</div>
+          </div>
         </div>
-        <div class="feature-card glass">
-          <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
-          <h3>Staff, on the clock</h3>
-          <p>Clock-ins, tip splits, and role permissions built in — so nobody's touching the drawer they shouldn't.</p>
+      </div>
+
+      <div class="cap-strip reveal-stagger">
+        <div class="cap-card glass">
+          <div class="cap-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          <h4>Staff, on the clock</h4>
+          <p>Clock-ins, tip splits, and role permissions — so nobody's touching the drawer they shouldn't.</p>
         </div>
-        <div class="feature-card glass">
-          <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 10h20"/></svg></div>
-          <h3>Every location, one view</h3>
+        <div class="cap-card glass">
+          <div class="cap-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div>
+          <h4>Every location, one view</h4>
           <p>Run one counter or twenty — pricing, promos, and reporting stay in sync across all of them.</p>
+        </div>
+        <div class="cap-card glass">
+          <div class="cap-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div>
+          <h4>Flexible payments</h4>
+          <p>Card, cash, split tender, and gift cards, all handled from the same till.</p>
+        </div>
+        <div class="cap-card glass">
+          <div class="cap-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg></div>
+          <h4>Reports that make sense</h4>
+          <p>Plain-language reports on your best hours, best items, and best staff.</p>
         </div>
       </div>
     </div>
@@ -681,19 +1217,42 @@
   <section id="integrations">
     <div class="container">
       <div class="section-head reveal">
-        <div class="eyebrow" style="justify-content:center;">Plays well with others</div>
-        <h2>Connects to what you already run.</h2>
-        <p>UniPOS slots into your existing stack — payments, accounting, delivery, payroll — no middleman required.</p>
+        <div class="eyebrow" style="justify-content:center;">One connected system</div>
+        <h2>Every part of your business, connected.</h2>
+        <p>Keep products, inventory, sales, payments, receipts, and reporting connected from one powerful platform.</p>
       </div>
-      <div class="integ-grid reveal-stagger">
-        <div class="integ-card glass"><div class="integ-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div><span>Stripe</span></div>
-        <div class="integ-card glass"><div class="integ-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div><span>QuickBooks</span></div>
-        <div class="integ-card glass"><div class="integ-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div><span>Xero</span></div>
-        <div class="integ-card glass"><div class="integ-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V7a6 6 0 0 1 12 0v2"/><rect x="3" y="9" width="18" height="12" rx="2"/></svg></div><span>DoorDash</span></div>
-        <div class="integ-card glass"><div class="integ-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><span>Gusto</span></div>
-        <div class="integ-card glass"><div class="integ-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg></div><span>Mailchimp</span></div>
-        <div class="integ-card glass"><div class="integ-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/></svg></div><span>Zapier</span></div>
-        <div class="integ-card glass"><div class="integ-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 4 6v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6l-2-4Z"/><path d="M4 6h16M9 10a3 3 0 0 0 6 0"/></svg></div><span>Shopify</span></div>
+      <div class="workflow reveal-stagger">
+        <div class="wf-track"><div class="wf-pulse"></div></div>
+        <div class="wf-node">
+          <div class="wf-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 8-9-5-9 5 9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></div>
+          <h3>Products</h3>
+          <p>Catalog, pricing, variants</p>
+        </div>
+        <div class="wf-node">
+          <div class="wf-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+          <h3>Inventory</h3>
+          <p>Stock levels, transfers</p>
+        </div>
+        <div class="wf-node">
+          <div class="wf-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/></svg></div>
+          <h3>Checkout</h3>
+          <p>Fast, itemized sales</p>
+        </div>
+        <div class="wf-node">
+          <div class="wf-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div>
+          <h3>Payment</h3>
+          <p>Card, cash, split tender</p>
+        </div>
+        <div class="wf-node">
+          <div class="wf-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M9 7h6M9 11h6M9 15h4"/></svg></div>
+          <h3>Receipt</h3>
+          <p>Print, email, or SMS</p>
+        </div>
+        <div class="wf-node">
+          <div class="wf-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg></div>
+          <h3>Reports</h3>
+          <p>Sales, staff, locations</p>
+        </div>
       </div>
     </div>
   </section>
@@ -703,41 +1262,53 @@
     <div class="dash-glow"></div>
     <div class="container">
       <div class="section-head reveal">
-        <div class="eyebrow" style="justify-content:center;">The back office</div>
-        <h2>Today's numbers, the moment they happen.</h2>
-        <p>See the whole shift without leaving the counter — sales, queue, and top sellers, updating live.</p>
+        <div class="eyebrow" style="justify-content:center;">UniPOS in action</div>
+        <h2>From checkout to complete.</h2>
+        <p>UniPOS brings sales, payments, inventory, and receipts together in one fast checkout experience.</p>
       </div>
-      <div class="dash-mock glass reveal">
-        <div class="dash-top">
-          <div class="dash-dots"><span></span><span></span><span></span></div>
-          <div class="dash-tabs"><span class="active">Today</span><span>This week</span><span>This month</span></div>
-        </div>
-        <div class="dash-body">
-          <div>
-            <div class="dash-stats">
-              <div class="stat-box"><div class="label">SALES TODAY</div><div class="value">$4,286 <span>+18%</span></div></div>
-              <div class="stat-box"><div class="label">TRANSACTIONS</div><div class="value">312 <span>+9%</span></div></div>
+      <div class="pos-demo reveal">
+        <div class="pos-chip pc-1"><span class="dot"></span>Sale completed</div>
+        <div class="pos-chip pc-2"><span class="dot"></span>Inventory updated</div>
+        <div class="pos-chip pc-3"><span class="dot"></span>Payment received</div>
+        <div class="pos-chip pc-4"><span class="dot"></span>Receipt ready</div>
+        <div class="pos-chip pc-5"><span class="dot"></span>Offline ready</div>
+
+        <div class="pos-mock glass">
+          <div class="dash-top">
+            <div class="dash-dots"><span></span><span></span><span></span></div>
+            <div class="dash-tabs"><span class="active">Checkout</span><span>Products</span><span>Customers</span></div>
+          </div>
+          <div class="pos-body">
+            <div class="pos-catalog">
+              <div class="pos-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg> Search products…</div>
+              <div class="pos-products">
+                <div class="pos-product"><div class="pp-icon">CB</div><div class="pp-info"><div class="pp-name">Cold Brew, 16oz</div><div class="pp-price">$5.50</div></div></div>
+                <div class="pos-product"><div class="pp-icon">CR</div><div class="pp-info"><div class="pp-name">Croissant</div><div class="pp-price">$4.50</div></div></div>
+                <div class="pos-product"><div class="pp-icon">BW</div><div class="pp-info"><div class="pp-name">Breakfast Wrap</div><div class="pp-price">$8.25</div></div></div>
+                <div class="pos-product"><div class="pp-icon">MT</div><div class="pp-info"><div class="pp-name">Matcha Latte</div><div class="pp-price">$4.75</div></div></div>
+              </div>
             </div>
-            <div class="chart-box">
-              <div class="bar" style="--h:35%"></div>
-              <div class="bar" style="--h:52%"></div>
-              <div class="bar" style="--h:41%"></div>
-              <div class="bar" style="--h:68%"></div>
-              <div class="bar" style="--h:59%"></div>
-              <div class="bar" style="--h:83%"></div>
-              <div class="bar" style="--h:74%"></div>
-              <div class="bar" style="--h:96%"></div>
-              <div class="bar" style="--h:64%"></div>
-              <div class="bar" style="--h:48%"></div>
+            <div class="pos-cart">
+              <div class="label">CURRENT SALE</div>
+              <div class="pos-cart-item"><span>2× Cold Brew, 16oz</span><span>$11.00</span></div>
+              <div class="pos-cart-item"><span>1× Croissant</span><span>$4.50</span></div>
+              <div class="pos-cart-item"><span>1× Breakfast Wrap</span><span>$8.25</span></div>
+              <div class="pos-cart-divider"></div>
+              <div class="pos-cart-row"><span>Subtotal</span><span>$23.75</span></div>
+              <div class="pos-cart-row"><span>Tax</span><span>$2.02</span></div>
+              <div class="pos-cart-row discount"><span>Discount</span><span>-$1.00</span></div>
+              <div class="pos-cart-total"><span>Total</span><span>$24.77</span></div>
+              <div class="pos-pay-methods">
+                <span class="pm active">Card</span><span class="pm">Cash</span><span class="pm">Split</span>
+              </div>
+              <button type="button" class="btn btn-primary pos-complete">Complete Sale</button>
             </div>
           </div>
-          <div class="queue-box">
-            <div class="label">TOP SELLERS TODAY</div>
-            <div class="queue-item"><span class="qname"><span class="avatar">CB</span>Cold Brew, 16oz</span><span class="amt">$742</span></div>
-            <div class="queue-item"><span class="qname"><span class="avatar">CR</span>Croissant</span><span class="amt">$518</span></div>
-            <div class="queue-item"><span class="qname"><span class="avatar">BW</span>Breakfast Wrap</span><span class="amt">$466</span></div>
-            <div class="queue-item"><span class="qname"><span class="avatar">MT</span>Matcha Latte</span><span class="amt">$389</span></div>
-            <div class="queue-item"><span class="qname"><span class="avatar">GC</span>Gift Card</span><span class="amt">$300</span></div>
+          <div class="pos-receipt-peek">
+            <div class="rp-t">UniPOS</div>
+            <div class="rp-line"><span>Order</span><span>#4477</span></div>
+            <div class="rp-line"><span>Items</span><span>4</span></div>
+            <div class="rp-total"><span>TOTAL</span><span>$24.77</span></div>
           </div>
         </div>
       </div>
@@ -792,7 +1363,7 @@
             <li><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Dedicated account lead</li>
           </ul>
           <a href="#contact" class="btn btn-outline">Choose Enterprise</a>
-          <a href="https://www.unipos.web.lk/login" class="btn btn-ghost">See Demo</a>
+          <a href="#demo" class="btn btn-ghost">See Demo</a>
         </div>
       </div>
     </div>
@@ -1060,20 +1631,28 @@
     }
   }
 
-  const counters = document.querySelectorAll('.about-num');
+  const counters = document.querySelectorAll('.about-num, .count-up');
   const countIO = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if(entry.isIntersecting){
         const el = entry.target;
-        const target = parseInt(el.dataset.count, 10);
+        const raw = el.dataset.count;
+        const target = parseFloat(raw);
+        const decimals = (raw.split('.')[1] || '').length;
+        const prefix = el.dataset.prefix || '';
         const suffix = el.dataset.suffix || '';
+        if(prefersReducedMotion){
+          el.textContent = prefix + target.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals }) + suffix;
+          countIO.unobserve(el);
+          return;
+        }
         const duration = 1400;
         const start = performance.now();
         function tick(now){
           const progress = Math.min((now - start) / duration, 1);
           const eased = 1 - Math.pow(1 - progress, 3);
-          const val = Math.floor(eased * target);
-          el.textContent = val.toLocaleString() + suffix;
+          const val = eased * target;
+          el.textContent = prefix + val.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals }) + suffix;
           if(progress < 1) requestAnimationFrame(tick);
         }
         requestAnimationFrame(tick);
