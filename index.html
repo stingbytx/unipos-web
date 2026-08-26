@@ -241,6 +241,7 @@
 
   /* device illustration */
   .hero-illustration{ position:relative; z-index:2; display:flex; align-items:center; justify-content:center; min-height:380px; }
+  .hero-device-img{ width:100%; max-width:560px; height:auto; filter: drop-shadow(0 30px 70px rgba(255,59,48,0.25)); }
   .device-arc{ position:absolute; width:150%; height:150%; top:-25%; left:-15%; opacity:.7; pointer-events:none; z-index:0; }
   .device-monitor{ width:84%; max-width:420px; background:#0B0B0E; border:1px solid var(--glass-border); border-radius:18px; padding:12px; box-shadow:0 40px 90px -30px rgba(255,59,48,0.28), 0 20px 50px -20px rgba(0,0,0,0.6); position:relative; z-index:2; }
   .device-screen{ background:var(--panel); border-radius:10px; padding:16px; }
@@ -817,43 +818,7 @@
           </div>
         </div>
         <div class="hero-illustration reveal">
-          <svg class="device-arc" viewBox="0 0 400 400" fill="none">
-            <defs>
-              <linearGradient id="arcGrad" x1="0" y1="1" x2="1" y2="0">
-                <stop offset="0%" stop-color="var(--teal)" stop-opacity="0.65"/>
-                <stop offset="100%" stop-color="var(--amber)" stop-opacity="0"/>
-              </linearGradient>
-            </defs>
-            <path d="M40,340 C40,140 180,20 380,60" stroke="url(#arcGrad)" stroke-width="2"/>
-          </svg>
-          <div class="device-printer">
-            <div class="dp-slot"></div>
-            <div class="dp-paper"></div>
-            <div class="dp-body"></div>
-          </div>
-          <div>
-            <div class="device-monitor">
-              <div class="device-screen">
-                <div class="ds-tabs"><span class="active">Dashboard</span><span>Sales</span><span>Products</span><span>Reports</span></div>
-                <div class="device-tiles">
-                  <div class="device-tile"><div class="dt-l">Total Sales</div><div class="dt-v">$12,430</div></div>
-                  <div class="device-tile"><div class="dt-l">Transactions</div><div class="dt-v">256</div></div>
-                  <div class="device-tile"><div class="dt-l">Avg Order</div><div class="dt-v">$48.56</div></div>
-                  <div class="device-tile"><div class="dt-l">Items Sold</div><div class="dt-v">1,320</div></div>
-                </div>
-                <svg class="device-chart" viewBox="0 0 300 60" preserveAspectRatio="none">
-                  <polyline class="chart-draw" points="0,45 30,38 60,42 90,25 120,30 150,15 180,20 210,10 240,18 270,8 300,14" fill="none" stroke="var(--teal-soft)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <div class="device-list">
-                  <div class="dl-row"><span>Wireless Headphones</span><span>124</span></div>
-                  <div class="dl-row"><span>Smart Watch</span><span>98</span></div>
-                </div>
-              </div>
-            </div>
-            <div class="device-stand"></div>
-            <div class="device-stand-base"></div>
-          </div>
-          <div class="device-scanner"></div>
+          <img class="hero-device-img" src="assets/hero-device.png" alt="UniPOS dashboard shown on a POS terminal with receipt printer and barcode scanner" loading="eager">
         </div>
       </div>
 
